@@ -74,7 +74,7 @@
 use std::{fmt, hash::Hash, marker::PhantomData, ops::Deref};
 
 #[cfg(feature = "serde")]
-pub mod serde;
+mod serde;
 
 /// A generic type-checked wrapper around a generic identifier type
 pub struct TypedId<I, T>(pub I, PhantomData<T>);
@@ -170,5 +170,53 @@ impl<I, T> Deref for TypedId<I, T> {
 impl<I, T> From<I> for TypedId<I, T> {
     fn from(other: I) -> TypedId<I, T> {
         TypedId(other, PhantomData)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::TypedId;
+    
+    type CustomerId = TypedId<u32, Customer>;
+    type OrderId = TypedId<u32, Order>;
+
+    struct Customer {
+        id: CustomerId,
+        orders: Vec<OrderId>,
+    }
+
+    struct Order {
+        id: OrderId,
+    }
+
+    impl Customer {
+        fn has_order(&self, o_id: OrderId) -> bool {
+            self.orders.iter().find(|&o| *o == o_id).is_some()
+        }
+    }
+
+    #[test]
+    fn basic_convertion() {
+        let id = 42;
+
+        let mut customer = Customer { id: id.into(), orders: Vec::new() };
+        let order = Order { id: id.into() };
+
+        customer.orders.push(order.id);
+
+        assert_eq!(id, *customer.id);
+        assert_eq!(id, *order.id);
+
+        assert!(customer.has_order(order.id));
+        assert!(customer.has_order(id.into()));
+        assert!(customer.has_order(customer.id.convert()));
+    }
+    
+    #[test]
+    fn basic_strings() {
+        let id = 42;
+        let t_id: CustomerId = id.into();
+        assert_eq!(id.to_string(), t_id.to_string());
+        assert_eq!(format!("{t_id:?}"), String::from("TypedId(42)"));
     }
 }

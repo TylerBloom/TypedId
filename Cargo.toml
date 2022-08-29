@@ -7,3 +7,6 @@ authors = ["TylerBloom <tylerbloom2222@gmail.com>"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"], optional = true }
+
+[dev-dependencies]
+serde_json = { version = "1.0" }
