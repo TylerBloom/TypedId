@@ -2,11 +2,11 @@
 //! underlying type is (de)serializable. In short, `TypedId`s are (de)serialized as thier
 //! underlying type. Otherwise, thier use as indices in maps is impractical.
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize, Deserializer, Serializer};
 
-use crate::TypeId;
+use crate::TypedId;
 
-impl<'de, I: Deserialize, T> Deserialize<'de> for TypedId<I, T> {
+impl<'de, I: Deserialize<'de>, T> Deserialize<'de> for TypedId<I, T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
