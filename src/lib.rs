@@ -1,7 +1,7 @@
 //! This crate provides tools to provide type safety for types that you use as identifier types.
-//! In general, the identifier fields between structs aren't interchangable, even if they are the
+//! In general, the identifier fields between structs aren't interchangeable, even if they are the
 //! same type.
-//! 
+//!
 //! Enter `TypedId`, a container struct that is generic over your ID type and the type that ID
 //! belongs to. `TypedId` implements many useful traits to make using `TypeId` identical to using
 //! the underlying ID type, but with a layer of type safety to prevent mistakes that can occur when
@@ -13,13 +13,13 @@
 //! pub type CustomerId = TypedId<u32, Customer>;
 //! // The ID type for our Order struct
 //! pub type OrderId = TypedId<u32, Order>;
-//! 
+//!
 //! pub struct Customer {
 //!     id: CustomerId,
 //!     orders: Vec<OrderId>,
 //!     /* Likely more fields */
 //! }
-//! 
+//!
 //! pub struct Order {
 //!     id: OrderId,
 //!     /* Likely more fields */
@@ -30,29 +30,29 @@
 //!         self.orders.iter().find(|&o| *o == o_id).is_some()
 //!     }
 //! }
-//! 
+//!
 //! let id = 42;
-//! 
+//!
 //! // Convert the id to a typed id
 //! let mut customer = Customer { id: id.into(), orders: Vec::new() };
 //! let order = Order { id: id.into() };
-//! 
+//!
 //! customer.orders.push(order.id);
-//! 
-//! // We can cast typed ids back to Uuid's if needed
+//!
+//! // We can cast typed ids back to `u32`'s if needed
 //! assert_eq!(id, *customer.id);
 //! assert_eq!(id, *order.id);
-//! 
+//!
 //! // This will *not* compile
 //! // We *can't* directly compare typed ids, they are different types
 //! // assert_eq!(id, customer.id);
 //! // assert_eq!(id, order.id);
 //! // assert_eq!(order.id, customer.id);
-//! 
-//! // Nor can we mistake a Uuid or a different typed id for an OrderId
+//!
+//! // Nor can we mistake a `u32` or a different typed id for an `OrderId`
 //! // assert!(customer.has_order(id));
-//! 
-//! // Instead, we must have an OrderId or explicitly convert an id to an OrderId
+//!
+//! // Instead, we must have an `OrderId` or explicitly convert an id to an `OrderId`
 //! assert!(customer.has_order(order.id));
 //! assert!(customer.has_order(id.into()));
 //! assert!(customer.has_order(customer.id.convert()));
@@ -67,27 +67,26 @@
     unused_import_braces,
     rustdoc::broken_intra_doc_links,
     missing_debug_implementations,
-    unreachable_pub,
+    unreachable_pub
 )]
 #![warn(rust_2018_idioms)]
 
 use std::{fmt, hash::Hash, marker::PhantomData, ops::Deref};
-
 
 #[cfg(feature = "serde")]
 mod serde;
 
 /// A macro to shorthand the creation of `TypeId` aliases.
 /// ```rust
-/// # struct Customer;
-/// # struct Order;
 /// use typed_id::id_type;
 /// // This is turned
+/// struct Customer { id: CustomerId };
 /// id_type!(u32, Customer);
 /// // into this
 /// // type CustomerId = TypedId<u32, Customer>;
-/// 
+///
 /// // And this
+/// pub struct Order { id: OrderId };
 /// id_type!(pub, u32, Order);
 /// // into this
 /// // pub type OrderId = TypedId<u32, Order>;
@@ -111,7 +110,7 @@ impl<I, T> TypedId<I, T> {
         Self(id, PhantomData)
     }
 
-    /// The method explictly converts between typed ids.
+    /// The method explicitly converts between typed ids.
     /// ```rust
     /// # struct A;
     /// # struct B;
@@ -119,7 +118,7 @@ impl<I, T> TypedId<I, T> {
     /// let a_id: TypedId<u32, A> = 42.into();
     /// let b_id: TypedId<u32, B> = a_id.convert();
     /// ```
-    /// 
+    ///
     /// Note, `From` can not be implemented here. We can't specify that two generic types, `A` and
     /// `B`, are distinct. If we try, this fails to compile.
     /// ```compile_fail
@@ -196,54 +195,5 @@ impl<I, T> Deref for TypedId<I, T> {
 impl<I, T> From<I> for TypedId<I, T> {
     fn from(other: I) -> TypedId<I, T> {
         TypedId(other, PhantomData)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::TypedId;
-    
-    // id_type!(u32, Customer);
-    type CustomerId = TypedId<u32, Customer>;
-    type OrderId = TypedId<u32, Order>;
-
-    struct Customer {
-        id: CustomerId,
-        orders: Vec<OrderId>,
-    }
-
-    struct Order {
-        id: OrderId,
-    }
-
-    impl Customer {
-        fn has_order(&self, o_id: OrderId) -> bool {
-            self.orders.iter().find(|&o| *o == o_id).is_some()
-        }
-    }
-
-    #[test]
-    fn basic_convertion() {
-        let id = 42;
-
-        let mut customer = Customer { id: id.into(), orders: Vec::new() };
-        let order = Order { id: id.into() };
-
-        customer.orders.push(order.id);
-
-        assert_eq!(id, *customer.id);
-        assert_eq!(id, *order.id);
-
-        assert!(customer.has_order(order.id));
-        assert!(customer.has_order(id.into()));
-        assert!(customer.has_order(customer.id.convert()));
-    }
-    
-    #[test]
-    fn basic_strings() {
-        let id = 42;
-        let t_id: CustomerId = id.into();
-        assert_eq!(id.to_string(), t_id.to_string());
-        assert_eq!(format!("{t_id:?}"), String::from("TypedId(42)"));
     }
 }

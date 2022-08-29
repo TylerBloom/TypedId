@@ -12,7 +12,7 @@ associate that ID type to a given struct (or collection of structs).
 
 This allows you to have an added layer of type-checked safety at compile time
 that disappears at run time! You can have all your types use the same
-underlying structure for thier identifiers while never have to worry about
+underlying structure for their identifiers while never have to worry about
 swapping them around.
 
 ## How it Works
@@ -34,8 +34,8 @@ It's that simple! If you have other types that you need ids for, simply add
 another `type` and `TypedId` will handle all the boilerplate for you!
 
 Note, that `TypedId` has an optional dependency on `serde`. When enabled, this
-adds an opinionated (de)serization implementation. This implementation
-(de)serizalizes a `TypedId` as its underlying type.
+adds an opinionated (de)serialization implementation. This implementation
+(de)serializes a `TypedId` as its underlying type.
 
 ## Why use 
 Rust has a very powerful type system with many amazing properties. This

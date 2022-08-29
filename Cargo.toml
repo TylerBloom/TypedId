@@ -1,6 +1,6 @@
 [package]
 name = "typed_id"
-version = "0.1.0-pre-alpha0.1"
+version = "0.1.0"
 edition = "2021"
 license = "LGPL-2.1"
 authors = ["TylerBloom <tylerbloom2222@gmail.com>"]
