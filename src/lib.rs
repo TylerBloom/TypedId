@@ -73,8 +73,34 @@
 
 use std::{fmt, hash::Hash, marker::PhantomData, ops::Deref};
 
+
 #[cfg(feature = "serde")]
 mod serde;
+
+/// A macro to shorthand the creation of `TypeId` aliases.
+/// ```rust
+/// # struct Customer;
+/// # struct Order;
+/// use typed_id::id_type;
+/// // This is turned
+/// id_type!(u32, Customer);
+/// // into this
+/// // type CustomerId = TypedId<u32, Customer>;
+/// 
+/// // And this
+/// id_type!(pub, u32, Order);
+/// // into this
+/// // pub type OrderId = TypedId<u32, Order>;
+/// ```
+#[macro_export]
+macro_rules! id_type {
+    ($id_type:ty, $name_type:ident) => {
+        paste::paste! { type [< $name_type Id >] = typed_id::TypedId<$id_type, $name_type>; }
+    };
+    ($where:vis, $id_type:ty, $name_type:ident) => {
+        paste::paste! { $where type [< $name_type Id >] = typed_id::TypedId<$id_type, $name_type>; }
+    };
+}
 
 /// A generic type-checked wrapper around a generic identifier type
 pub struct TypedId<I, T>(pub I, PhantomData<T>);
@@ -177,6 +203,7 @@ impl<I, T> From<I> for TypedId<I, T> {
 mod tests {
     use super::TypedId;
     
+    // id_type!(u32, Customer);
     type CustomerId = TypedId<u32, Customer>;
     type OrderId = TypedId<u32, Order>;
 
