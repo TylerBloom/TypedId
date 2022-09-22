@@ -16,13 +16,13 @@ underlying structure for their identifiers while never have to worry about
 swapping them around.
 
 ## How it Works
-`TypedId`s are very strange forward.
+`TypedId`s are very straightforward.
 The easiest way to use them is why declaring your own `type`s that use `TypedId`.
 For example,
 ```rust
 use typed_id::TypedId;
 
-pub stuct Customer {
+pub struct Customer {
     id: CustomerId,
     /* Likely other fields */
 }
