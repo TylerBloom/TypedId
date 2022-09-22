@@ -22,7 +22,7 @@ For example,
 ```rust
 use typed_id::TypedId;
 
-pub stuct Customer {
+pub struct Customer {
     id: CustomerId,
     /* Likely other fields */
 }
